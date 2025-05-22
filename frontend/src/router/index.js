@@ -12,6 +12,7 @@ const router = createRouter({
         // 0.首页
         {
           path: '',
+          name: 'RedirectShow',
           redirect: '/show', // 访问 / 会自动跳转到 /show
         },
         {

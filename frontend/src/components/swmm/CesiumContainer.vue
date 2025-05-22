@@ -81,16 +81,12 @@ onMounted(async () => {
 })
 </script>
 
-<style>
+<style scoped>
 #cesiumContainer {
   width: 100%;
   height: 100%;
   padding: 0;
   margin: 0;
   overflow: hidden;
-}
-
-.cesium-widget-credits {
-  display: none !important;
 }
 </style>

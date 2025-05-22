@@ -15,4 +15,8 @@ body,
   margin: 0;
   padding: 0;
 }
+
+.cesium-widget-credits {
+  display: none !important;
+}
 </style>

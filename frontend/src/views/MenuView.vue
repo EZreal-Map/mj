@@ -1,6 +1,6 @@
 <template>
-  <div class="menu-container">
-    <el-menu mode="horizontal" router="true" :default-active="route.path">
+  <div class="index-container">
+    <el-menu mode="horizontal" :router="true" :default-active="route.path" class="menu">
       <el-menu-item index="/show">首页</el-menu-item>
       <el-sub-menu index="1">
         <template #title>系统管理</template>
@@ -45,6 +45,7 @@
         <el-menu-item index="/swmm-edit">短期预报编辑</el-menu-item>
       </el-sub-menu>
     </el-menu>
+
     <div class="content">
       <router-view></router-view>
     </div>
@@ -57,13 +58,20 @@ const route = useRoute()
 </script>
 
 <style scoped>
-.menu-container {
+.index-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100vw;
 }
 
+.menu {
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 5px solid #e4e7ed;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 4px 4px 0 0;
+}
 .content {
   flex: 1;
   overflow: auto;
