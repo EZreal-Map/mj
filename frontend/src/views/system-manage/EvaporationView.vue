@@ -7,8 +7,7 @@
           <el-select
             v-model="selectValue"
             placeholder="请选择电站"
-            size="large"
-            style="width: 180px; margin-right: 10px"
+            style="width: 180px"
             @change="getMonthEvaporation"
           >
             <el-option
@@ -19,7 +18,7 @@
             />
           </el-select>
           <div class="button-group">
-            <el-button type="success" @click="updateMonthEvaporationBatch">保存</el-button>
+            <el-button type="primary" @click="updateMonthEvaporationBatch">保存</el-button>
           </div>
         </div>
       </div>
