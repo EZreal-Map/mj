@@ -32,13 +32,7 @@
       </div>
 
       <div class="left-bottom">
-        <el-table
-          :data="tableData"
-          stripe
-          style="width: 100%"
-          height="100%"
-          @row-click="rowClickCallback"
-        >
+        <el-table :data="tableData" style="width: 100%" height="100%" @row-click="rowClickCallback">
           <el-table-column prop="Date" label="日期" width="100px"> </el-table-column>
           <el-table-column prop="flowQ" label="流量(m³/s)">
             <template #default="scope">
@@ -148,7 +142,7 @@ const startTime = ref(new Date(Date.now() - 24 * 60 * 60 * 1000))
 const chartRef = ref(null)
 let chartInstance = null
 
-const clickedRow = ref(null)
+const clickedRow = ref({ Date: '', flowQ: '' }) // 用于保存选中的行数据
 const deleteDialogVisible = ref(false)
 
 const addDialogVisible = ref(false)
@@ -161,14 +155,16 @@ const getDailyAverageFlowData = () => {
   getDailyFlowAxios(selectSTCDT.value, startTime.value, endTime.value).then((data) => {
     tableData.value = data
     oldTableData = JSON.parse(JSON.stringify(data)) // 深拷贝原始数据
-    clickedRow.value = null // 清空选中的行数据
+    clickedRow.value = { Date: '', flowQ: '' } // 清空选中的行数据
     // // 更新表格数据
     updateChart(data)
   })
 }
 
 const init = () => {
-  selectSTCDT.value = options[0].value // 默认选中第一个电站
+  if (!selectSTCDT.value) {
+    selectSTCDT.value = options[0].value // 默认选中第一个电站
+  }
   getDailyAverageFlowData()
 }
 init()
@@ -262,12 +258,11 @@ const rowClickCallback = (row) => {
 }
 
 const deleteDailyFlow = () => {
-  if (!clickedRow.value) {
+  if (!clickedRow.value.Date || !clickedRow.value.flowQ) {
     ElMessage.warning('请先在表格中选中你要删除的那一行数据')
     return
   }
   deleteDialogVisible.value = true
-  // deleteDailyFlowAxios(STCDT, deleteTime)
 }
 
 const deleteDialogCallback = () => {
@@ -284,9 +279,9 @@ const deleteDialogCallback = () => {
   }
   deleteDailyFlowAxios(selectSTCDT.value, deleteTime).then(() => {
     deleteDialogVisible.value = false
-    clickedRow.value = null // 清空选中的行数据
     // 删除成功后，重新获取数据
     getDailyAverageFlowData()
+    clickedRow.value = { Date: '', flowQ: '' } // 清空选中的行数据
   })
 }
 
@@ -299,7 +294,7 @@ const addDailyFlow = () => {
 }
 
 const addDialogCallback = () => {
-  // addDialogVisible.value = false
+  // 参数校验
   const addTime = dayFlowForm.value.Date
   const addFlow = dayFlowForm.value.flowQ
   if (!addTime || !addFlow) {
@@ -307,6 +302,7 @@ const addDialogCallback = () => {
     return
   }
   addDailyFlowAxios(selectSTCDT.value, addTime, addFlow).then(() => {
+    addDialogVisible.value = false
     // 新增成功后，重新获取数据
     getDailyAverageFlowData()
   })

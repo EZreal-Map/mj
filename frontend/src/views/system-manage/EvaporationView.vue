@@ -24,7 +24,7 @@
       </div>
 
       <div class="left-bottom">
-        <el-table :data="tableData" stripe style="width: 100%">
+        <el-table :data="tableData" style="width: 100%">
           <el-table-column prop="Month" label="月份" width="100px"> </el-table-column>
           <el-table-column prop="E_Day" label="多年平均日蒸发量(mm)">
             <template #default="scope">

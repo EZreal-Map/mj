@@ -42,7 +42,7 @@
 
       <el-sub-menu index="8">
         <template #title>方案管理</template>
-        <el-menu-item index="/swmm-edit">短期预报编辑</el-menu-item>
+        <el-menu-item index="/swmm-edit">短期预报编辑管理</el-menu-item>
       </el-sub-menu>
     </el-menu>
 
