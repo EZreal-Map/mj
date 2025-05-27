@@ -39,7 +39,7 @@ const router = createRouter({
         {
           path: '/flow/ten-day-average',
           name: 'TenDayAverageFlow',
-          component: () => import('@/views/system-manage/TenDayAverageFlow.vue'),
+          component: () => import('@/views/system-manage/TendayAverageFlow.vue'),
         },
         // 2.水务计算
 

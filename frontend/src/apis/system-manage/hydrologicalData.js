@@ -228,8 +228,8 @@ export const addDailyFlowAxios = async (STCDT, time, value) => {
   ElMessage.success('添加成功')
 }
 
-// 3.1 获取多年平均流量数据 （左小表：多年平均）
-export const getSelSeqflowDataAxios = async (ptcode) => {
+// 3.1 获取多年平均月流量数据 （左小表：多年平均）
+export const getSelSeqflowDataAxios = async (ptcode, interval = 'MM') => {
   const data = {
     language: 'js',
     names: ['action', 'dispatch', 'keys', 'paramNames', 'paramValues'],
@@ -238,7 +238,7 @@ export const getSelSeqflowDataAxios = async (ptcode) => {
       '/doreaddata/getdata',
       'getselSeqflowData',
       'ptcode#Sublocal#intSeq#interval#selyear',
-      `${ptcode}#false#50#MM#-1`,
+      `${ptcode}#false#50#${interval}#-1`,
     ],
   }
 
@@ -265,8 +265,8 @@ export const getSelSeqflowDataAxios = async (ptcode) => {
   return selSeqflowData
 }
 
-// 3.2 获取年度流量数据（左小表：去年同期/近3年平均）
-export const getSelYearflowDataAxios = async (ptcode, year) => {
+// 3.2 获取年度平均月流量数据（左小表：去年同期/近3年平均）
+export const getSelYearflowDataAxios = async (ptcode, year, interval = 'MM') => {
   if (!year) {
     // 如果year为空，就获取去年的字符串，代表查询去年同期数据
     const date = new Date()
@@ -280,7 +280,7 @@ export const getSelYearflowDataAxios = async (ptcode, year) => {
       '/doreaddata/getdata',
       'getselYearflowData',
       'ptcode#Sublocal#year#interval',
-      `${ptcode}#false#${year}#MM`,
+      `${ptcode}#false#${year}#${interval}`,
     ],
   }
 
@@ -319,7 +319,7 @@ export const getSelYearflowDataAxios = async (ptcode, year) => {
 }
 
 // 3.3 获取n年月平均流量数据 （右大表）
-export const getOriginalHydroAxios = async (ptcode) => {
+export const getMonthlyOriginalHydroAxios = async (ptcode) => {
   const data = {
     language: 'js',
     names: ['action', 'dispatch', 'PTCode'],
@@ -349,7 +349,7 @@ export const getOriginalHydroAxios = async (ptcode) => {
   return originalHydroData
 }
 
-// 3.3 保存月流量数据
+// 3.4 保存月流量数据
 export const updateMonthlyFlowBatchAxios = async (ptcode, tableData, year) => {
   // 参数校验
   // 1. 判断year是否为空
@@ -414,7 +414,7 @@ export const updateMonthlyFlowBatchAxios = async (ptcode, tableData, year) => {
   }
 }
 
-// 3.4 删除月流量数据
+// 3.5 删除月流量数据
 export const deleteMonthlyFlowAxios = async (ptcode, year) => {
   if (!ptcode || !year) {
     ElMessage.warning('参数不完整，无法删除')
@@ -442,18 +442,16 @@ export const deleteMonthlyFlowAxios = async (ptcode, year) => {
       ElMessage.error(errorMessage)
       return Promise.reject(new Error(errorMessage)) // 标志业务失败
     }
-    ElMessage.success('删除成功')
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
     return Promise.reject(error)
   }
 }
 
-// 3.5 添加月流量数据
+// 3.6 添加月流量数据
 // 添加指定年份的月流量数据
 export const addMonthlyFlowAxios = async (STCDT, params) => {
   const { Year, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12 } = params
-
   // ptcode 为 STCDT的前6位
   const ptcode = STCDT.slice(0, 6)
   // 构造参数值字符串
@@ -478,7 +476,170 @@ export const addMonthlyFlowAxios = async (STCDT, params) => {
       ElMessage.error(errorMessage)
       return Promise.reject(new Error(errorMessage)) // 标志业务失败
     }
-    ElMessage.success('添加成功')
+  } catch (error) {
+    ElMessage.error('请求失败，请检查网络或服务器状态')
+    return Promise.reject(error)
+  }
+}
+
+// 4.1 获取多年平均旬流量数据 （左小表：多年平均） （同 3.1）
+// 4.2 获取年度平均旬流量数据（左小表：去年同期/近3年平均） （同 3.2）
+// 4.3 获取旬流量数据 （右大表）
+export const getAllTDFlowDataAxios = async (STCDT) => {
+  const data = {
+    language: 'js',
+    names: ['action', 'dispatch', 'keys', 'paramNames', 'paramValues'],
+    values: ['/pms/Base', '/doreaddata/getdata', 'getAllTDFlowData', 'stcdt', STCDT],
+  }
+
+  const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
+  const responseStr = response.data[0]
+  const errorMessage = response?.data?.[1] ?? null
+  if (errorMessage) {
+    ElMessage.error(errorMessage)
+    return Promise.reject(new Error(errorMessage))
+  }
+
+  let resultData = []
+  try {
+    const retWrapper = {}
+    eval(`
+      (function() {
+        ${responseStr}
+        retWrapper.ret = ret;
+      })()
+    `)
+    // 按照你返回的数据结构设定提取字段
+    resultData = retWrapper.ret.getAllTDFlowData
+  } catch (e) {
+    console.error('解析失败', e)
+  }
+
+  return resultData
+}
+// 4.4 保存旬流量数据
+export const updateTendayFlowBatchAxios = async (STCDT, tableData, year) => {
+  // ptcode 为 STCDT的前6位
+  const ptcode = STCDT.slice(0, 6)
+  // 1. 校验参数
+  if (!year) {
+    ElMessage.warning('无效保存，没有选中任何年份')
+    return Promise.reject(new Error('无效保存，没有年份'))
+  }
+  if (!Array.isArray(tableData) || tableData.length !== 36) {
+    ElMessage.warning('请确保数据为36个旬数据')
+    return Promise.reject(new Error('请确保数据为36个旬数据'))
+  }
+
+  for (let i = 0; i < tableData.length; i++) {
+    const item = tableData[i]
+    if (
+      item.foredata === '' ||
+      item.foredata === null ||
+      typeof item.foredata === 'undefined' ||
+      isNaN(Number(item.foredata))
+    ) {
+      ElMessage.warning(`第${i + 1}旬数据为空或无效，请检查！`)
+      return Promise.reject(new Error(`第${i + 1}旬数据为空或无效`))
+    }
+  }
+
+  // 2. 取出 foredata，并转成数字，顺序为 TD1~TD36
+  const tdValues = tableData.map((item) => {
+    const val = Number(item.foredata)
+    return isNaN(val) ? 0 : val
+  })
+
+  // 3. 拼接参数字符串
+  const paramStr = `${[ptcode, STCDT, year, ...tdValues].join('##')}`
+  const paramValues = `((${paramStr}))`
+
+  const data = {
+    language: 'js',
+    names: ['action', 'dispatch', 'keys', 'paramNames', 'paramValues'],
+    values: [
+      '/pms/Base',
+      '/doBaseQuery/InsertArrayDB',
+      '(UpdateQTenDays)',
+      '(PTCode##STCDT##Year##TD1##TD2##TD3##TD4##TD5##TD6##TD7##TD8##TD9##TD10##TD11##TD12##TD13##TD14##TD15##TD16##TD17##TD18##TD19##TD20##TD21##TD22##TD23##TD24##TD25##TD26##TD27##TD28##TD29##TD30##TD31##TD32##TD33##TD34##TD35##TD36)',
+      paramValues,
+    ],
+  }
+
+  try {
+    const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
+    const errorMessage = response?.data?.[1] ?? null
+    if (errorMessage) {
+      ElMessage.error(errorMessage)
+      return Promise.reject(new Error(errorMessage))
+    }
+    ElMessage.success(`${year}年的逐旬流量数据更新成功`)
+    return response.data[0]
+  } catch (error) {
+    ElMessage.error('请求失败，请检查网络或服务器状态')
+    return Promise.reject(error)
+  }
+}
+
+// 4.5 删除旬流量数据
+export const deleteTendayFlowAxios = async (STCDT, year) => {
+  // ptcode 为 STCDT的前6位
+  const ptcode = STCDT.slice(0, 6)
+  const paramValues = `((${ptcode}##${STCDT}##${year}))`
+  const data = {
+    language: 'js',
+    names: ['action', 'dispatch', 'keys', 'paramNames', 'paramValues'],
+    values: [
+      '/pms/Base',
+      '/doBaseQuery/InsertArrayDB',
+      '(DeleteQTenDays)',
+      '(PTCode##STCDT##Year)',
+      paramValues,
+    ],
+  }
+
+  try {
+    const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
+    const errorMessage = response?.data?.[1] ?? null
+    if (errorMessage) {
+      ElMessage.error(errorMessage)
+      return Promise.reject(new Error(errorMessage))
+    }
+  } catch (error) {
+    ElMessage.error('请求失败，请检查网络或服务器状态')
+    return Promise.reject(error)
+  }
+}
+// 4.6 添加月流量数据
+export const addTendayFlowAxios = async (STCDT, params) => {
+  const Year = params.Year
+  const ptcode = STCDT.slice(0, 6)
+
+  // 构造 36 旬数据，默认 0
+  const TDs = Array.from({ length: 36 }, (_, i) => params[`TD${i + 1}`] ?? 0)
+
+  // 拼接 paramValues 字符串
+  const paramValues = `((${ptcode}##${STCDT}##${Year}##${TDs.join('##')}))`
+
+  const data = {
+    language: 'js',
+    names: ['action', 'dispatch', 'keys', 'paramNames', 'paramValues'],
+    values: [
+      '/pms/Base',
+      '/doBaseQuery/InsertArrayDB',
+      '(AddQTenDays)',
+      '(PTCode##STCDT##Year##TD1##TD2##TD3##TD4##TD5##TD6##TD7##TD8##TD9##TD10##TD11##TD12##TD13##TD14##TD15##TD16##TD17##TD18##TD19##TD20##TD21##TD22##TD23##TD24##TD25##TD26##TD27##TD28##TD29##TD30##TD31##TD32##TD33##TD34##TD35##TD36)',
+      paramValues,
+    ],
+  }
+
+  try {
+    const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
+    const errorMessage = response?.data?.[1] ?? null
+    if (errorMessage) {
+      ElMessage.error(errorMessage)
+      return Promise.reject(new Error(errorMessage))
+    }
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
     return Promise.reject(error)

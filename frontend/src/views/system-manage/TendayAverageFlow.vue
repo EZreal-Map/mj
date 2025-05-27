@@ -54,8 +54,8 @@
 
       <div class="button-group-bottom">
         <el-button type="primary" @click="init">查询</el-button>
-        <el-button type="primary" @click="addMonthFlow">新增</el-button>
-        <el-button type="primary" @click="deleteMonthFlow">删除</el-button>
+        <el-button type="primary" @click="addTendayFlow">新增</el-button>
+        <el-button type="primary" @click="deleteTendayFlow">删除</el-button>
         <el-button type="primary" @click="updateMonthlyFlowBatch">保存</el-button>
       </div>
     </div>
@@ -71,19 +71,12 @@
           highlight-current-row
         >
           <el-table-column prop="Year" label="年份"> </el-table-column>
-          <el-table-column prop="flowQMonth1" label="一月"> </el-table-column>
-          <el-table-column prop="flowQMonth2" label="二月"> </el-table-column>
-          <el-table-column prop="flowQMonth3" label="三月"> </el-table-column>
-          <el-table-column prop="flowQMonth4" label="四月"> </el-table-column>
-          <el-table-column prop="flowQMonth5" label="五月"> </el-table-column>
-          <el-table-column prop="flowQMonth6" label="六月"> </el-table-column>
-          <el-table-column prop="flowQMonth7" label="七月"> </el-table-column>
-          <el-table-column prop="flowQMonth8" label="八月"> </el-table-column>
-          <el-table-column prop="flowQMonth9" label="九月"> </el-table-column>
-          <el-table-column prop="flowQMonth10" label="十月"> </el-table-column>
-          <el-table-column prop="flowQMonth11" label="十一月"> </el-table-column>
-          <el-table-column prop="flowQMonth12" label="十二月"> </el-table-column>
-          <el-table-column prop="flowQYear" label="年平均"> </el-table-column>
+          <el-table-column
+            v-for="tendayIndex in 12 * 3"
+            :key="tendayIndex"
+            :prop="`TD${tendayIndex}`"
+            :label="`${tendayIndex}旬`"
+          />
         </el-table>
       </div>
       <div ref="chartRef" class="chart-container"></div>
@@ -113,25 +106,11 @@
     </template>
   </el-dialog>
   <!-- 新增输入弹窗 -->
-  <el-dialog v-model="addDialogVisible" title="新增" width="800">
-    <el-form :model="monthFlowForm">
+  <el-dialog v-model="addDialogVisible" title="新增" width="400">
+    <el-form :model="tendayFlowForm">
       <el-form-item label="年份：">
-        <el-input v-model="monthFlowForm.Year" placeholder="请输入年份" type="number" />
+        <el-input v-model="tendayFlowForm.Year" placeholder="请输入年份" type="number" />
       </el-form-item>
-      <el-divider content-position="left">月流量（m³/s）：</el-divider>
-
-      <el-row :gutter="20">
-        <el-col :span="6" v-for="i in 12" :key="i">
-          <el-form-item :label="`M${i}`">
-            <el-input
-              v-model="monthFlowForm[`M${i}`]"
-              type="number"
-              :placeholder="`第${i}月平均流量`"
-              min="0"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
     </el-form>
     <template #footer>
       <div class="dialog-footer">
@@ -148,11 +127,11 @@ import * as echarts from 'echarts'
 import { WarningFilled } from '@element-plus/icons-vue'
 import {
   getSelSeqflowDataAxios,
-  getMonthlyOriginalHydroAxios,
+  getAllTDFlowDataAxios,
   getSelYearflowDataAxios,
-  updateMonthlyFlowBatchAxios,
-  deleteMonthlyFlowAxios,
-  addMonthlyFlowAxios,
+  updateTendayFlowBatchAxios,
+  deleteTendayFlowAxios,
+  addTendayFlowAxios,
 } from '@/apis/system-manage/hydrologicalData.js'
 import { ElMessage } from 'element-plus'
 
@@ -193,28 +172,20 @@ const clickedRow = ref(null) // 用于保存选中的行数据
 const deleteDialogVisible = ref(false)
 
 const addDialogVisible = ref(false)
-const monthFlowFormInit = {
+const tendayFlowFormInit = {
   Year: new Date().getFullYear(), // 默认年份为当前年份
-  M1: 0,
-  M2: 0,
-  M3: 0,
-  M4: 0,
-  M5: 0,
-  M6: 0,
-  M7: 0,
-  M8: 0,
-  M9: 0,
-  M10: 0,
-  M11: 0,
-  M12: 0,
+  // 其他：TD1, TD2, ..., TD36 都是空 （后端会自动填充默认值 0）
 }
-const monthFlowForm = ref({ ...monthFlowFormInit }) // 用于存储新增表单数据
+const tendayFlowForm = ref({ ...tendayFlowFormInit }) // 用于存储新增表单数据
 
 const rightTableRef = ref(null) // 用于存储右侧表格的DOM
 const rightTableData = ref([]) // 用于存储右侧表格数据
 
 const activeStringOptions = { 1: '多年平均', 2: '去年同期', 3: '近3年平均' } // 用于存储当前选中的字符串
 const activeButtonNumber = ref(1) // 用于存储当前选中的按钮
+
+// interval 用于定义后端请求的参数
+const interval = 'TD' // TD: Tenday 旬 / MM: Month 月
 
 const updateChart = (data) => {
   nextTick(() => {
@@ -242,7 +213,7 @@ const updateChart = (data) => {
     const values = data.map((item) => parseFloat(item.foredata))
 
     const label = activeStringOptions[activeButtonNumber.value] ?? activeButtonNumber.value + '年'
-    const text = `月平均流量过程线 - ${label}`
+    const text = `旬平均流量过程线 - ${label}`
 
     const option = {
       title: {
@@ -261,7 +232,7 @@ const updateChart = (data) => {
       },
       yAxis: {
         type: 'value',
-        name: '月平均流量 (m³/s)',
+        name: '旬平均流量 (m³/s)',
         axisLine: { show: true },
         splitLine: {
           lineStyle: {
@@ -295,22 +266,22 @@ const rowClickCallback = (row, message = true) => {
   clickedRow.value = row
   console.log('点击的行数据:', row)
   let tempArray = []
-  for (let i = 1; i <= 12; i++) {
+  for (let i = 1; i <= 12 * 3; i++) {
     let tempObject = {}
     tempObject['foretime'] = i // 设置月份
-    tempObject['foredata'] = row[`flowQMonth${i}`] // 获取对应月份的流量数据
+    tempObject['foredata'] = row[`TD${i}`] // 获取对应月份的流量数据
     tempArray.push(tempObject)
   }
   tableData.value = tempArray // 更新表格数据
   updateChart(tableData.value) // 更新图表
   activeButtonNumber.value = clickedRow.value.Year
-  if (message) ElMessage.success(`已选中年份：${clickedRow.value.Year}对应的月平均流量数据`)
+  if (message) ElMessage.success(`已选中年份：${clickedRow.value.Year}对应的旬平均流量数据`)
 }
 
 // 3.1 获取多年平均流量数据 （左小表：多年平均）
 const getSelSeqflowData = async (message = true) => {
   activeButtonNumber.value = 1 // 设置当前选中按钮为 “多年平均”
-  getSelSeqflowDataAxios(selectSTCDT.value).then((data) => {
+  getSelSeqflowDataAxios(selectSTCDT.value, interval).then((data) => {
     console.log('获取的水文断面数据（小表）:', data)
     tableData.value = data
     updateChart(data)
@@ -326,7 +297,7 @@ const getSelSeqflowData = async (message = true) => {
 // 3.2 获取年度流量数据（左小表：去年同期/近3年平均）
 const getSelYearflowData = (year) => {
   activeButtonNumber.value = year === -3 ? 3 : 2 // 设置当前选中按钮为 “近3年平均” 或 “去年同期”
-  getSelYearflowDataAxios(selectSTCDT.value, year).then((data) => {
+  getSelYearflowDataAxios(selectSTCDT.value, year, interval).then((data) => {
     console.log('获取的水文断面数据（小表）:', data)
     tableData.value = data
     updateChart(data)
@@ -336,11 +307,11 @@ const getSelYearflowData = (year) => {
   })
 }
 
-// 3.3 获取n年月平均流量数据 （右大表）
+// 3.3 获取n年旬平均流量数据 （右大表）
 const getOriginalHydro = async () => {
-  const data = await getMonthlyOriginalHydroAxios(selectSTCDT.value)
+  const data = await getAllTDFlowDataAxios(selectSTCDT.value)
   rightTableData.value = data
-  console.log('clickedRow.value:', clickedRow.value)
+  console.log('获取的水文断面数据（大表）:', data)
   if (clickedRow.value) {
     const matchRow = rightTableData.value.find((item) => item.Year === clickedRow.value.Year)
     if (matchRow) {
@@ -363,13 +334,13 @@ const updateMonthlyFlowBatch = () => {
   const STCDT = selectSTCDT.value
   const Year = clickedRow.value ? clickedRow.value.Year : ''
 
-  updateMonthlyFlowBatchAxios(STCDT, tableData.value, Year).then(() => {
+  updateTendayFlowBatchAxios(STCDT, tableData.value, Year).then(() => {
     // 更新成功后，重新获取数据
     getOriginalHydro() // 只更新大表
   })
 }
 
-const deleteMonthFlow = () => {
+const deleteTendayFlow = () => {
   if (!clickedRow.value?.Year) {
     ElMessage.warning('请先在表格中选中你要删除的那一行数据')
     return
@@ -378,51 +349,44 @@ const deleteMonthFlow = () => {
 }
 
 const deleteDialogCallback = () => {
-  deleteMonthlyFlowAxios(selectSTCDT.value, clickedRow.value.Year).then(() => {
+  deleteTendayFlowAxios(selectSTCDT.value, clickedRow.value.Year).then(() => {
     deleteDialogVisible.value = false
     // 删除成功后，重新获取数据
     init(false) // 重新初始化数据
-    ElMessage.success(`${clickedRow.value.Year}年月流量数据删除成功`)
+    ElMessage.success(`${clickedRow.value.Year}年旬流量数据删除成功`)
     clickedRow.value = null // 清空选中的行数据
   })
 }
 
-const addMonthFlow = () => {
-  // 故意不清空 monthFlowForm，以便用户可以在已有数据的基础上新增
-  // monthFlowForm.value = { ...monthFlowFormInit } // 重置表单
+const addTendayFlow = () => {
+  // 故意不清空 tendayFlowForm，以便用户可以在已有数据的基础上新增
+  // tendayFlowForm.value = { ...tendayFlowFormInit } // 重置表单
   addDialogVisible.value = true
 }
 
 const addDialogCallback = () => {
   // 参数校验
   // 校验 Year 格式是否正确（4位数字且在合理范围）
-  let year = monthFlowForm.value.Year
+  let year = tendayFlowForm.value.Year
   const currentYear = new Date().getFullYear()
   if (!/^\d{4}$/.test(year) || year < 1900 || year > currentYear + 10) {
     ElMessage.warning(`请输入有效的年份(1900-${currentYear + 10})`)
     return
   }
-  year = Number(year) // 转换为数字类型
-  // 检查月份流量是否填写完整
-  for (let i = 1; i <= 12; i++) {
-    if (monthFlowForm.value[`M${i}`] === '') {
-      ElMessage.warning(`请填写第${i}月的流量数据`)
-      return
-    }
-  }
 
-  addMonthlyFlowAxios(selectSTCDT.value, monthFlowForm.value).then(async () => {
+  addTendayFlowAxios(selectSTCDT.value, tendayFlowForm.value).then(async () => {
     addDialogVisible.value = false
     // 新增成功后，重新获取数据
     await getOriginalHydro() // 重新初始化数据（仅仅初始化大表数据）
     // 选中新增的行
     // 从新数据中重新找到匹配行
     const matchRow = rightTableData.value.find((item) => item.Year === year)
+    console.log('匹配到的行数据:', matchRow)
     if (matchRow) {
       rightTableRef.value.setCurrentRow(matchRow) // 选中新增的行保持高亮
       rowClickCallback(matchRow, false) // 更新左侧表格和图表
     }
-    ElMessage.success(`${year}年月流量数据添加成功`)
+    ElMessage.success(`${year}年旬流量数据添加成功，并全部填充默认值 0`)
   })
 }
 </script>
