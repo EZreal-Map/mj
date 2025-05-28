@@ -37,11 +37,21 @@ const router = createRouter({
           component: () => import('@/views/system-manage/MonthlyAverageFlow.vue'),
         },
         {
-          path: '/flow/ten-day-average',
-          name: 'TenDayAverageFlow',
+          path: '/flow/tenday-average',
+          name: 'TendayAverageFlow',
           component: () => import('@/views/system-manage/TendayAverageFlow.vue'),
         },
         // 2.水务计算
+        {
+          path: '/elevation-storage-curve',
+          name: 'ElevationStorageCurve',
+          component: () => import('@/views/power-station-data/ElevationStorageCurve.vue'),
+        },
+        {
+          path: '/elevation-discharge-curve',
+          name: 'ElevationDischargeCurve',
+          component: () => import('@/views/power-station-data/ElevationDischargeCurve.vue'),
+        },
 
         // 7.方案管理
         {

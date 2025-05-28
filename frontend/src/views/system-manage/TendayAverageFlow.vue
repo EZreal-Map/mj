@@ -1,55 +1,59 @@
 <template>
   <div class="container">
     <div class="left">
-      <div class="left-top">
-        <div class="station-select-row">
-          <div class="form-row">
-            <span class="label">水文断面：</span>
-            <el-select
-              v-model="selectSTCDT"
-              placeholder="请选择水文断面"
-              class="date-picker-flex"
-              @change="init"
-            >
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </div>
+      <div class="left-top-space-between">
+        <div class="left-top">
+          <div class="station-select-row">
+            <div class="form-row">
+              <span class="label">水文断面：</span>
+              <el-select
+                v-model="selectSTCDT"
+                placeholder="请选择水文断面"
+                class="form-input-flex"
+                @change="init"
+              >
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
 
-          <div class="button-group">
-            <el-button @click="getSelSeqflowData" :class="{ active: activeButtonNumber === 1 }"
-              >多年平均</el-button
-            >
-            <el-button @click="getSelYearflowData()" :class="{ active: activeButtonNumber === 2 }"
-              >去年同期</el-button
-            >
-            <el-button @click="getSelYearflowData(-3)" :class="{ active: activeButtonNumber === 3 }"
-              >近3年平均</el-button
-            >
+            <div class="button-group">
+              <el-button @click="getSelSeqflowData" :class="{ active: activeButtonNumber === 1 }"
+                >多年平均</el-button
+              >
+              <el-button @click="getSelYearflowData()" :class="{ active: activeButtonNumber === 2 }"
+                >去年同期</el-button
+              >
+              <el-button
+                @click="getSelYearflowData(-3)"
+                :class="{ active: activeButtonNumber === 3 }"
+                >近3年平均</el-button
+              >
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="left-bottom">
-        <el-table :data="tableData" style="width: 100%" height="100%">
-          <el-table-column prop="foretime" label="月" width="100px"> </el-table-column>
-          <el-table-column prop="foredata" label="流量(m³/s)">
-            <template #default="scope" v-if="activeButtonNumber > 3">
-              <el-input
-                v-model.number="scope.row.foredata"
-                placeholder="不能为空"
-                type="number"
-                min="0"
-                @mousewheel.prevent
-                @input="updateChart(tableData)"
-              />
-            </template>
-          </el-table-column>
-        </el-table>
+        <div class="left-table">
+          <el-table :data="tableData" style="width: 100%" height="100%">
+            <el-table-column prop="foretime" label="月" width="100px"> </el-table-column>
+            <el-table-column prop="foredata" label="流量(m³/s)">
+              <template #default="scope" v-if="activeButtonNumber > 3">
+                <el-input
+                  v-model.number="scope.row.foredata"
+                  placeholder="不能为空"
+                  type="number"
+                  min="0"
+                  @mousewheel.prevent
+                  @input="updateChart(tableData)"
+                />
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
       </div>
 
       <div class="button-group-bottom">
@@ -328,7 +332,7 @@ const init = (message = true) => {
   getSelSeqflowData(false) // 获取小表数据 （默认是第一个 “多年平均”）
   if (message) ElMessage.success(`获取水文断面数据成功`)
 }
-init()
+init(false) // 初始化时不显示提示信息
 
 const updateMonthlyFlowBatch = () => {
   const STCDT = selectSTCDT.value
@@ -409,6 +413,15 @@ const addDialogCallback = () => {
   justify-content: space-between;
 }
 
+.left-top-space-between {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  /* 这里 100px 解决了因为想要space-between作用，加div包裹，但是导致bottom-table 撑开父亲高度。 */
+  /* 玄学！ 不想搞清楚了 (*^_^*) */
+  height: 100px;
+}
+
 .left-top {
   display: flex;
   flex-direction: column;
@@ -433,7 +446,7 @@ const addDialogCallback = () => {
   width: 100px;
 }
 
-.date-picker-flex {
+.form-input-flex {
   flex: 1;
   min-width: 0;
 }
@@ -450,7 +463,7 @@ const addDialogCallback = () => {
   color: #409eff;
 }
 
-.left-bottom {
+.left-table {
   overflow: auto;
 }
 

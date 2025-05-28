@@ -4,8 +4,13 @@
       <div class="left-top">
         <div class="station-select-row">
           <div class="form-row">
-            <span class="label">水文断面：</span>
-            <el-select v-model="selectSTCDT" placeholder="请选择水文断面" class="form-input-flex">
+            <span class="label">电站：</span>
+            <el-select
+              v-model="selectSTCDT"
+              placeholder="请选择水文断面"
+              class="form-input-flex"
+              @change="selectSTCDTCallback"
+            >
               <el-option
                 v-for="item in options"
                 :key="item.value"
@@ -15,18 +20,26 @@
             </el-select>
           </div>
           <div class="form-row">
-            <span class="label">开始时间：</span>
-            <el-date-picker v-model="startTime" type="date" placeholder="请选择开始时间" />
-          </div>
-          <div class="form-row">
-            <span class="label">结束时间：</span>
-            <el-date-picker v-model="endTime" type="date" placeholder="请选择结束时间" />
+            <span class="label">关系曲线：</span>
+            <el-select
+              v-model="selectCurveType"
+              placeholder="请选择水文断面"
+              class="form-input-flex"
+              @change="selectCurveTypeCallback"
+            >
+              <el-option
+                v-for="item in curveOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
           </div>
           <div class="button-group">
-            <el-button type="primary" @click="getDailyAverageFlowData">查询</el-button>
+            <el-button type="primary" @click="getReservoirV">查询</el-button>
             <el-button type="primary" @click="addDailyFlow">新增</el-button>
             <el-button type="primary" @click="deleteDailyFlow">删除</el-button>
-            <el-button type="primary" @click="updateDailyFlowBatch">保存</el-button>
+            <el-button type="primary" @click="updateReservoirVBatch">保存</el-button>
           </div>
         </div>
       </div>
@@ -39,11 +52,40 @@
           @row-click="rowClickCallback"
           highlight-current-row
         >
-          <el-table-column prop="Date" label="日期" width="100px"> </el-table-column>
-          <el-table-column prop="flowQ" label="流量(m³/s)">
+          <!-- 这里2个 v-if 目的是根据 selectCurveType 交换或者调整列的顺序 -->
+          <!-- 1、（ZI）是水位-库容 -->
+          <!-- 2、（ES）是库容-蓄能 -->
+          <el-table-column v-if="selectCurveType === 'ES'" prop="V" label="库容(万m³)">
             <template #default="scope">
               <el-input
-                v-model.number="scope.row.flowQ"
+                v-model.number="scope.row.V"
+                placeholder="不能为空"
+                type="number"
+                min="0"
+                @mousewheel.prevent
+                @input="updateChart(tableData)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
+            :prop="selectCurveType"
+            :label="selectCurveType === 'ZI' ? '水位(m)' : '蓄能(万KWh)'"
+          >
+            <template #default="scope">
+              <el-input
+                v-model.number="scope.row[selectCurveType]"
+                placeholder="不能为空"
+                type="number"
+                min="0"
+                @mousewheel.prevent
+                @input="updateChart(tableData)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column v-if="selectCurveType === 'ZI'" prop="V" label="库容(万m³)">
+            <template #default="scope">
+              <el-input
+                v-model.number="scope.row.V"
                 placeholder="不能为空"
                 type="number"
                 min="0"
@@ -68,8 +110,11 @@
       </el-icon>
       <div class="dialog-text">
         <p>确定要删除这条数据吗？此操作不可恢复。</p>
-        <p><strong>日期：</strong>{{ clickedRow.Date }}</p>
-        <p><strong>流量：</strong>{{ clickedRow.flowQ }} m³/s</p>
+        <p>
+          <strong>{{ selectCurveType === 'ZI' ? '水位' : '蓄能' }}：</strong>
+          {{ clickedRow?.[selectCurveType] }} {{ selectCurveType === 'ZI' ? 'm' : '万KWh' }}
+        </p>
+        <p><strong>库容：</strong>{{ clickedRow?.V }} 万m³</p>
       </div>
     </div>
     <template #footer>
@@ -87,7 +132,7 @@
       </el-form-item>
       <div>
         <el-form-item label="流量(m³/s)：" label-width="100">
-          <el-input v-model="dayFlowForm.flowQ" type="number" style="width: 220px" min="0" />
+          <el-input v-model="dayFlowForm.flowQ" type="number" style="width: 220px" />
         </el-form-item>
       </div>
     </el-form>
@@ -104,12 +149,13 @@
 import { ref, nextTick } from 'vue'
 import * as echarts from 'echarts'
 import { WarningFilled } from '@element-plus/icons-vue'
+import { addDailyFlowAxios } from '@/apis/system-manage/hydrologicalData.js'
+
 import {
-  getDailyFlowAxios,
-  updateDailyFlowBatchAxios,
-  deleteDailyFlowAxios,
-  addDailyFlowAxios,
-} from '@/apis/system-manage/hydrologicalData.js'
+  getReservoirVAxios,
+  deleteReservoirVAxios,
+  updateReservoirVBatchAxios,
+} from '@/apis/system-manage/powerStationData.js'
 
 // TODO: 这里需要根据接口实际情况获得
 const options = [
@@ -142,36 +188,34 @@ const selectSTCDT = ref('')
 const tableData = ref([])
 let oldTableData = {} // 用于保存原始数据
 
-const endTime = ref(new Date())
-const startTime = ref(new Date(Date.now() - 24 * 60 * 60 * 1000))
+const curveOptions = [
+  { value: 'ZI', label: '水位-库容' },
+  { value: 'ES', label: '库容-蓄能' },
+]
+const selectCurveType = ref('ZI') // 选择的曲线类型
 
 const chartRef = ref(null)
 let chartInstance = null
 
-const clickedRow = ref({ Date: '', flowQ: '' }) // 用于保存选中的行数据
+const clickedRow = ref(null) // 用于保存选中的行数据
 const deleteDialogVisible = ref(false)
 
 const addDialogVisible = ref(false)
-const dayFlowForm = ref({
-  Date: '',
-  flowQ: '',
-})
+const dayFlowForm = ref(null)
 
-const getDailyAverageFlowData = () => {
-  getDailyFlowAxios(selectSTCDT.value, startTime.value, endTime.value).then((data) => {
-    tableData.value = data
-    oldTableData = JSON.parse(JSON.stringify(data)) // 深拷贝原始数据
-    clickedRow.value = { Date: '', flowQ: '' } // 清空选中的行数据
-    // // 更新表格数据
-    updateChart(data)
-  })
+const getReservoirV = async () => {
+  const data = await getReservoirVAxios(selectSTCDT.value)
+  tableData.value = data
+  console.log('获取的水位库容数据:', data)
+  oldTableData = JSON.parse(JSON.stringify(data)) // 深拷贝原始数据
+  updateChart(data)
 }
 
 const init = () => {
   if (!selectSTCDT.value) {
     selectSTCDT.value = options[0].value // 默认选中第一个电站
   }
-  getDailyAverageFlowData()
+  getReservoirV()
 }
 init()
 
@@ -197,12 +241,41 @@ const updateChart = (data) => {
       })
       return
     }
-    const dates = data.map((item) => item.Date)
-    const values = data.map((item) => parseFloat(item.flowQ))
+
+    // 设置图表选项
+    let xdatas
+    let ydatas
+    let titleText
+    let xAxisText
+    let yAxisText
+    if (selectCurveType.value === 'ZI') {
+      // 水位-库容关系曲线
+      titleText = '水位-库容关系曲线'
+      xAxisText = '水位 (m)'
+      yAxisText = '库容 (万m³)'
+      xdatas = data.map((item) => parseFloat(item[selectCurveType.value]))
+      ydatas = data.map((item) => parseFloat(item['V']))
+    } else if (selectCurveType.value === 'ES') {
+      // 库容-蓄能关系曲线
+      titleText = '库容-蓄能关系曲线'
+      xAxisText = '库容 (万m³)'
+      yAxisText = '蓄能 (万KWh)'
+      xdatas = data.map((item) => parseFloat(item['V']))
+      ydatas = data.map((item) => parseFloat(item[selectCurveType.value]))
+    }
+
+    // // 因为自动的y轴比例尺显示数据不行，所有手动设置 yMin 和 yMax
+    // // 计算最大最小值并加减 10% padding
+    // const minValue = Math.min(...ydatas)
+    // const maxValue = Math.max(...ydatas)
+    // const padding = (maxValue - minValue) * 0.1 // 10% 的 padding
+
+    // const yMin = Math.floor(minValue - padding)
+    // const yMax = Math.ceil(maxValue + padding)
 
     const option = {
       title: {
-        text: '日平均流量过程线',
+        text: titleText,
         left: 'center',
         top: '0px',
       },
@@ -211,13 +284,13 @@ const updateChart = (data) => {
       },
       xAxis: {
         type: 'category',
-        name: '日期',
-        data: dates,
+        name: xAxisText,
+        data: xdatas,
         boundaryGap: false,
       },
       yAxis: {
         type: 'value',
-        name: '日平均流量 (m³/s)',
+        name: yAxisText,
         axisLine: { show: true },
         splitLine: {
           lineStyle: {
@@ -227,7 +300,7 @@ const updateChart = (data) => {
       },
       series: [
         {
-          data: values,
+          data: ydatas,
           type: 'line',
           lineStyle: {
             color: '#409EFF',
@@ -247,13 +320,14 @@ const updateChart = (data) => {
   })
 }
 
-const updateDailyFlowBatch = () => {
+const updateReservoirVBatch = () => {
   const STCDT = selectSTCDT.value
   const newData = tableData.value
   const oldData = oldTableData
-  updateDailyFlowBatchAxios(STCDT, oldData, newData).then(() => {
+  updateReservoirVBatchAxios(STCDT, oldData, newData, selectCurveType.value).then(() => {
     // 更新成功后，重新获取数据
-    getDailyAverageFlowData()
+    // getDailyAverageFlowData()
+    getReservoirV()
   })
 }
 
@@ -264,7 +338,7 @@ const rowClickCallback = (row) => {
 }
 
 const deleteDailyFlow = () => {
-  if (!clickedRow.value.Date || !clickedRow.value.flowQ) {
+  if (!clickedRow.value) {
     ElMessage.warning('请先在表格中选中你要删除的那一行数据')
     return
   }
@@ -272,25 +346,17 @@ const deleteDailyFlow = () => {
 }
 
 const deleteDialogCallback = () => {
-  let deleteTime = ''
-  // 通过clickedRow找到要删除的行的索引
-  const index = tableData.value.findIndex(
-    (item) => item.Date === clickedRow.value.Date && item.flowQ === clickedRow.value.flowQ,
-  )
-  if (index !== -1) {
-    deleteTime = oldTableData[index].Date // 使用旧数据的日期，防止新数据的日期被修改，无法和数据库定位
-  } else {
-    ElMessage.error('删除失败，请刷新重试')
-    return
-  }
-  deleteDailyFlowAxios(selectSTCDT.value, deleteTime).then(() => {
+  deleteReservoirVAxios(selectSTCDT.value, clickedRow.value.ZI, clickedRow.value.V).then(() => {
     deleteDialogVisible.value = false
     // 删除成功后，重新获取数据
-    getDailyAverageFlowData()
-    clickedRow.value = { Date: '', flowQ: '' } // 清空选中的行数据
+    // getDailyAverageFlowData()
+    getReservoirV()
+    clickedRow.value = null // 清空选中的行数据
+    ElMessage.success('删除成功')
   })
 }
 
+// TODO: 这里“新增”的后端接口有问题，报错
 const addDailyFlow = () => {
   addDialogVisible.value = true
   dayFlowForm.value = {
@@ -310,8 +376,19 @@ const addDialogCallback = () => {
   addDailyFlowAxios(selectSTCDT.value, addTime, addFlow).then(() => {
     addDialogVisible.value = false
     // 新增成功后，重新获取数据
-    getDailyAverageFlowData()
+    // getDailyAverageFlowData()
+    getReservoirV()
   })
+}
+
+const selectSTCDTCallback = () => {
+  getReservoirV()
+}
+
+const selectCurveTypeCallback = () => {
+  // 切换曲线类型时，更新图表
+  updateChart(tableData.value)
+  clickedRow.value = null // 清空选中的行数据
 }
 </script>
 

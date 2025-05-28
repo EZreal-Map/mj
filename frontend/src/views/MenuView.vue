@@ -9,12 +9,12 @@
           <el-menu-item index="/evaporation">月蒸发量</el-menu-item>
           <el-menu-item index="/flow/daily-average">日平均流量</el-menu-item>
           <el-menu-item index="/flow/monthly-average">月平均流量</el-menu-item>
-          <el-menu-item index="/flow/ten-day-average">旬平均流量</el-menu-item>
+          <el-menu-item index="/flow/tenday-average">旬平均流量</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="1-2">
           <template #title>电站数据</template>
-          <el-menu-item index="1-2-1">水位库容关系</el-menu-item>
-          <el-menu-item index="1-2-2">厂址水位流量关系</el-menu-item>
+          <el-menu-item index="/elevation-storage-curve">水位库容关系</el-menu-item>
+          <el-menu-item index="/elevation-discharge-curve">水位流量关系</el-menu-item>
           <el-menu-item index="1-2-3">水库特征水位</el-menu-item>
           <el-menu-item index="1-2-4">水电站参数</el-menu-item>
           <el-menu-item index="1-2-5">水库特征水位</el-menu-item>
