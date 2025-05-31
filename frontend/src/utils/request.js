@@ -1,9 +1,10 @@
 import axios from 'axios'
 
 // const baseURL = 'http://127.0.0.1:8080' // 本地开发
-const baseURL = 'http://127.0.0.1:9033' // docker
+// const baseURL = 'http://127.0.0.1:9033' // docker
 // const baseURL = 'http://172.25.146.121:8080' // 远程临时展示
 // const baseURL = '/api' // 反向代理（部署时使用）
+const baseURL = 'http://10.243.171.83:7777/api/Action/Run'
 
 const instance = axios.create({
   baseURL,
@@ -21,10 +22,12 @@ instance.interceptors.request.use(
 // 响应拦截器
 instance.interceptors.response.use(
   (res) => {
-    if (res.status === 200) {
-      return res.data // 返回核心响应数据，可能需要根据实际情况进行调整
+    const errorMessage = res?.data?.[1] ?? null
+    if (errorMessage) {
+      ElMessage.error(errorMessage)
+      return Promise.reject(new Error(errorMessage))
     }
-    // return Promise.reject(res.data)
+    return res
   },
   (err) => {
     ElMessage.error(err.response.data.detail)

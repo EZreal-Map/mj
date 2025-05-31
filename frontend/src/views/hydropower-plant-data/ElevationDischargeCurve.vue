@@ -130,7 +130,7 @@ import {
   updateZdownQBatchAxios,
   deleteZdownQAxios,
   addZdownQAxios,
-} from '@/apis/system-manage/powerStationData.js'
+} from '@/apis/system-manage/hydropowerPlantData.js'
 
 // TODO: 这里需要根据接口实际情况获得
 const options = [

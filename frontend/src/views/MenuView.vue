@@ -15,9 +15,8 @@
           <template #title>电站数据</template>
           <el-menu-item index="/elevation-storage-curve">水位库容关系</el-menu-item>
           <el-menu-item index="/elevation-discharge-curve">水位流量关系</el-menu-item>
-          <el-menu-item index="1-2-3">水库特征水位</el-menu-item>
-          <el-menu-item index="1-2-4">水电站参数</el-menu-item>
-          <el-menu-item index="1-2-5">水库特征水位</el-menu-item>
+          <el-menu-item index="/reservoir-characteristic-elevations">水库特征水位</el-menu-item>
+          <el-menu-item index="/hydropower-plant-parameters">水电站参数</el-menu-item>
         </el-sub-menu>
       </el-sub-menu>
       <el-sub-menu index="3">

@@ -24,7 +24,7 @@
       </div>
 
       <div class="left-bottom">
-        <el-table :data="tableData" style="width: 100%">
+        <el-table :data="tableData" height="100%" style="width: 100%">
           <el-table-column prop="Month" label="月份" width="100px"> </el-table-column>
           <el-table-column prop="E_Day" label="多年平均日蒸发量(mm)">
             <template #default="scope">
@@ -83,7 +83,7 @@ let chartInstance = null
 
 const getMonthEvaporation = () => {
   getMonthEvaporationAxios(selectValue.value).then((data) => {
-    tableData.value = data
+    tableData.value = data // 前端表格赋值
     oldTableData = JSON.parse(JSON.stringify(data)) // 深拷贝原始数据
     // 更新表格数据
     updateChart(data)
@@ -196,6 +196,7 @@ const updateMonthEvaporationBatch = () => {
 
 .left-bottom {
   margin-top: 20px;
+  overflow: auto;
 }
 
 .right {

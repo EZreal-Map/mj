@@ -45,12 +45,23 @@ const router = createRouter({
         {
           path: '/elevation-storage-curve',
           name: 'ElevationStorageCurve',
-          component: () => import('@/views/power-station-data/ElevationStorageCurve.vue'),
+          component: () => import('@/views/hydropower-plant-data/ElevationStorageCurve.vue'),
         },
         {
           path: '/elevation-discharge-curve',
           name: 'ElevationDischargeCurve',
-          component: () => import('@/views/power-station-data/ElevationDischargeCurve.vue'),
+          component: () => import('@/views/hydropower-plant-data/ElevationDischargeCurve.vue'),
+        },
+        {
+          path: '/hydropower-plant-parameters',
+          name: 'HydropowerPlantParameters',
+          component: () => import('@/views/hydropower-plant-data/HydropowerPlantParameters.vue'),
+        },
+        {
+          path: '/reservoir-characteristic-elevations',
+          name: 'ReservoirCharacteristicElevations',
+          component: () =>
+            import('@/views/hydropower-plant-data/ReservoirCharacteristicElevations.vue'),
         },
 
         // 7.方案管理

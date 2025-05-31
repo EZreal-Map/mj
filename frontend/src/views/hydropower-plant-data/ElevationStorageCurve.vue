@@ -155,7 +155,8 @@ import {
   getReservoirVAxios,
   deleteReservoirVAxios,
   updateReservoirVBatchAxios,
-} from '@/apis/system-manage/powerStationData.js'
+} from '@/apis/system-manage/hydropowerPlantData.js'
+import { ElMessage } from 'element-plus'
 
 // TODO: 这里需要根据接口实际情况获得
 const options = [
@@ -358,7 +359,9 @@ const deleteDialogCallback = () => {
 
 // TODO: 这里“新增”的后端接口有问题，报错
 const addDailyFlow = () => {
-  addDialogVisible.value = true
+  ElMessage.warning('此功能未完成')
+
+  // addDialogVisible.value = true
   dayFlowForm.value = {
     Date: '',
     flowQ: '',

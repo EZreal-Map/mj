@@ -1,4 +1,4 @@
-import axios from 'axios'
+import request from '@/utils/request'
 import { formatDate } from '@/utils/format'
 
 // 1.1 获取月蒸发量
@@ -8,7 +8,7 @@ export const getMonthEvaporationAxios = async (STCDT) => {
     names: ['action', 'dispatch', 'keys', 'paramNames', 'paramValues'],
     values: ['/pms/Base', '/doreaddata/getdata', 'getMonthE', 'STCDT', STCDT],
   }
-  const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
+  const response = await request.post('', data)
   const responseStr = response.data[0]
   let monthE = []
   try {
@@ -73,12 +73,7 @@ export const updateMonthEvaporationBatchAxios = async (STCDT, oldData, newData) 
     ],
   }
 
-  const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
-  const errorMessage = response?.data?.[1] ?? null
-  if (errorMessage) {
-    ElMessage.error(errorMessage)
-    return Promise.reject(new Error(errorMessage)) // 标志业务失败
-  }
+  await request.post('', data)
   ElMessage.success('更新成功')
 }
 
@@ -99,7 +94,7 @@ export const getDailyFlowAxios = async (stcdt, begintime, endtime) => {
     ],
   }
 
-  const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
+  const response = await request.post('', data)
   const responseStr = response.data[0]
   let dayFlowData = []
 
@@ -160,12 +155,7 @@ export const updateDailyFlowBatchAxios = async (STCDT, oldData, newData) => {
     ],
   }
 
-  const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
-  const errorMessage = response?.data?.[1] ?? null
-  if (errorMessage) {
-    ElMessage.error(errorMessage)
-    return Promise.reject(new Error(errorMessage)) // 标志业务失败
-  }
+  await request.post('', data)
   ElMessage.success('保存成功')
 }
 
@@ -190,12 +180,7 @@ export const deleteDailyFlowAxios = async (STCDT, deleteTime) => {
     ],
   }
 
-  const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
-  const errorMessage = response?.data?.[1] ?? null
-  if (errorMessage) {
-    ElMessage.error(errorMessage)
-    return Promise.reject(new Error(errorMessage)) // 标志业务失败
-  }
+  await request.post('', data)
   ElMessage.success('删除成功')
 }
 
@@ -219,12 +204,7 @@ export const addDailyFlowAxios = async (STCDT, time, value) => {
     ],
   }
 
-  const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
-  const errorMessage = response?.data?.[1] ?? null
-  if (errorMessage) {
-    ElMessage.error(errorMessage)
-    return Promise.reject(new Error(errorMessage)) // 标志业务失败
-  }
+  await request.post('', data)
   ElMessage.success('添加成功')
 }
 
@@ -242,14 +222,9 @@ export const getSelSeqflowDataAxios = async (ptcode, interval = 'MM') => {
     ],
   }
 
-  const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
+  const response = await request.post('', data)
   const responseStr = response.data[0]
   let selSeqflowData = []
-  const errorMessage = response?.data?.[1] ?? null
-  if (errorMessage) {
-    ElMessage.error(errorMessage)
-    return Promise.reject(new Error(errorMessage)) // 标志业务失败
-  }
   try {
     const retWrapper = {}
     eval(`
@@ -284,14 +259,9 @@ export const getSelYearflowDataAxios = async (ptcode, year, interval = 'MM') => 
     ],
   }
 
-  const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
+  const response = await request.post('', data)
   const responseStr = response.data[0]
   let yearFlowData = []
-  const errorMessage = response?.data?.[1] ?? null
-  if (errorMessage) {
-    ElMessage.error(errorMessage)
-    return Promise.reject(new Error(errorMessage)) // 标志业务失败
-  }
   try {
     const retWrapper = {}
     eval(`
@@ -326,14 +296,9 @@ export const getMonthlyOriginalHydroAxios = async (ptcode) => {
     values: ['/pms/Base', '/DataGridQuery/GetOriginalHydro', ptcode],
   }
 
-  const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
+  const response = await request.post('', data)
   const responseStr = response.data[0]
   let originalHydroData = []
-  const errorMessage = response?.data?.[1] ?? null
-  if (errorMessage) {
-    ElMessage.error(errorMessage)
-    return Promise.reject(new Error(errorMessage)) // 标志业务失败
-  }
   try {
     const retWrapper = {}
     eval(`
@@ -400,14 +365,8 @@ export const updateMonthlyFlowBatchAxios = async (ptcode, tableData, year) => {
   }
 
   try {
-    const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
-    const errorMessage = response?.data?.[1] ?? null
-    if (errorMessage) {
-      ElMessage.error(errorMessage)
-      return Promise.reject(new Error(errorMessage))
-    }
+    await request.post('', data)
     ElMessage.success(`${year}年的月平均流量数据更新成功`)
-    return response.data[0]
   } catch (error) {
     ElMessage.error('请求失败')
     return Promise.reject(error)
@@ -436,12 +395,7 @@ export const deleteMonthlyFlowAxios = async (ptcode, year) => {
   }
 
   try {
-    const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
-    const errorMessage = response?.data?.[1] ?? null
-    if (errorMessage) {
-      ElMessage.error(errorMessage)
-      return Promise.reject(new Error(errorMessage)) // 标志业务失败
-    }
+    await request.post('', data)
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
     return Promise.reject(error)
@@ -470,12 +424,7 @@ export const addMonthlyFlowAxios = async (STCDT, params) => {
   }
 
   try {
-    const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
-    const errorMessage = response?.data?.[1] ?? null
-    if (errorMessage) {
-      ElMessage.error(errorMessage)
-      return Promise.reject(new Error(errorMessage)) // 标志业务失败
-    }
+    await request.post('', data)
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
     return Promise.reject(error)
@@ -492,14 +441,8 @@ export const getAllTDFlowDataAxios = async (STCDT) => {
     values: ['/pms/Base', '/doreaddata/getdata', 'getAllTDFlowData', 'stcdt', STCDT],
   }
 
-  const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
+  const response = await request.post('', data)
   const responseStr = response.data[0]
-  const errorMessage = response?.data?.[1] ?? null
-  if (errorMessage) {
-    ElMessage.error(errorMessage)
-    return Promise.reject(new Error(errorMessage))
-  }
-
   let resultData = []
   try {
     const retWrapper = {}
@@ -567,14 +510,8 @@ export const updateTendayFlowBatchAxios = async (STCDT, tableData, year) => {
   }
 
   try {
-    const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
-    const errorMessage = response?.data?.[1] ?? null
-    if (errorMessage) {
-      ElMessage.error(errorMessage)
-      return Promise.reject(new Error(errorMessage))
-    }
+    await request.post('', data)
     ElMessage.success(`${year}年的逐旬流量数据更新成功`)
-    return response.data[0]
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
     return Promise.reject(error)
@@ -599,12 +536,7 @@ export const deleteTendayFlowAxios = async (STCDT, year) => {
   }
 
   try {
-    const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
-    const errorMessage = response?.data?.[1] ?? null
-    if (errorMessage) {
-      ElMessage.error(errorMessage)
-      return Promise.reject(new Error(errorMessage))
-    }
+    await request.post('', data)
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
     return Promise.reject(error)
@@ -634,12 +566,7 @@ export const addTendayFlowAxios = async (STCDT, params) => {
   }
 
   try {
-    const response = await axios.post('http://10.243.171.83:7777/api/Action/Run', data)
-    const errorMessage = response?.data?.[1] ?? null
-    if (errorMessage) {
-      ElMessage.error(errorMessage)
-      return Promise.reject(new Error(errorMessage))
-    }
+    await request.post('', data)
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
     return Promise.reject(error)
