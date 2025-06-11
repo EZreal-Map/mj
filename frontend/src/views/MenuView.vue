@@ -3,7 +3,7 @@
     <el-menu mode="horizontal" :router="true" :default-active="route.path" class="menu">
       <el-menu-item index="/show">首页</el-menu-item>
       <el-sub-menu index="1">
-        <template #title>系统管理</template>
+        <template #title>数据管理</template>
         <el-sub-menu index="1-1">
           <template #title>水文数据</template>
           <el-menu-item index="/evaporation">月蒸发量</el-menu-item>
@@ -35,9 +35,15 @@
         <el-menu-item index="4-2-4">水电站参数（待修改）</el-menu-item>
         <el-menu-item index="4-2-5">水库特征水位（待修改）</el-menu-item>
       </el-sub-menu>
-      <el-menu-item index="5">计划调度</el-menu-item>
-      <el-menu-item index="6">实时调度</el-menu-item>
-      <el-menu-item index="7">评价指标</el-menu-item>
+      <el-sub-menu index="5">
+        <template #title>计划调度</template>
+      </el-sub-menu>
+      <el-sub-menu index="6">
+        <template #title>实时调度</template>
+      </el-sub-menu>
+      <el-sub-menu index="7">
+        <template #title>评价指标</template>
+      </el-sub-menu>
 
       <el-sub-menu index="8">
         <template #title>方案管理</template>

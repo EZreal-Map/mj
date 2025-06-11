@@ -4,11 +4,18 @@ import axios from 'axios'
 // const baseURL = 'http://127.0.0.1:9033' // docker
 // const baseURL = 'http://172.25.146.121:8080' // 远程临时展示
 // const baseURL = '/api' // 反向代理（部署时使用）
-const baseURL = 'http://10.243.171.83:7777/api/Action/Run'
+// const baseURL = 'http://10.243.171.83:7777/api/Action/Run' // 局域网外内网穿透转发
+// const baseURL = 'http://172.25.148.65/api/Action/Run' // 局域网
+// const baseURL = 'api/Action/Run'
+
+// const baseURL = 'http://10.243.171.83:7777/api/Action'
+const baseURL = 'http://172.25.148.65/api/Action' // 局域网
+// const baseURL = '/api/Action' // 反向代理（部署时使用）
 
 const instance = axios.create({
   baseURL,
   timeout: 100000,
+  withCredentials: true,
 })
 
 // 请求拦截器

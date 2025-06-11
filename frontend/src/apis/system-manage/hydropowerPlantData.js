@@ -10,7 +10,7 @@ export const getReservoirVAxios = async (stcdt) => {
   }
 
   try {
-    const response = await request.post('', data)
+    const response = await request.post('Run', data)
     const responseStr = response.data[0]
     let reservoirData = []
 
@@ -48,7 +48,7 @@ export const deleteReservoirVAxios = async (stcdt, zi, v) => {
   }
 
   try {
-    await request.post('', data)
+    await request.post('Run', data)
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
     return Promise.reject(error)
@@ -106,7 +106,7 @@ export const updateReservoirVBatchAxios = async (stcdt, oldData, newData, select
   }
 
   try {
-    await request.post('', data)
+    await request.post('Run', data)
     ElMessage.success('更新成功')
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
@@ -124,7 +124,7 @@ export const getZdownQAxios = async (stcdt) => {
   }
 
   try {
-    const response = await request.post('', data)
+    const response = await request.post('Run', data)
     const responseStr = response.data[0]
     let curveData = []
 
@@ -188,7 +188,7 @@ export const updateZdownQBatchAxios = async (stcdt, oldData, newData) => {
   }
 
   try {
-    await request.post('', data)
+    await request.post('Run', data)
     ElMessage.success('更新成功')
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
@@ -215,7 +215,7 @@ export const deleteZdownQAxios = async (stcdt, z_down, q_down) => {
   }
 
   try {
-    await request.post('', data)
+    await request.post('Run', data)
     ElMessage.success('删除成功')
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
@@ -242,7 +242,7 @@ export const addZdownQAxios = async (stcdt, z_down, q_down) => {
   }
 
   try {
-    await request.post('', data)
+    await request.post('Run', data)
     ElMessage.success('新增成功')
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
@@ -259,7 +259,7 @@ export const getReservoirInfoAxios = async () => {
   }
 
   try {
-    const response = await request.post('', data)
+    const response = await request.post('Run', data)
     const responseStr = response.data[0]
     let resultData = []
 
@@ -354,7 +354,7 @@ export const updateReservoirInfoBatchAxios = async (oldTableDataList, newTableDa
       paramValues,
     ],
   }
-  await request.post('', data)
+  await request.post('Run', data)
 }
 
 // 3.3 删除电站特征水位数据
@@ -376,7 +376,7 @@ export const deleteReservoirInfoAxios = async (ptcode, stcdt) => {
     ],
   }
 
-  await request.post('', data)
+  await request.post('Run', data)
 }
 
 // 4.1 获取水电站参数数据
@@ -388,7 +388,7 @@ export const getDispatchParameterAxios = async () => {
   }
 
   try {
-    const response = await request.post('', data)
+    const response = await request.post('Run', data)
     const responseStr = response.data[0]
     let resultData = []
 
@@ -452,5 +452,5 @@ export const updateDispatchParamsBatchAxios = async (oldTableList, tableDataList
       paramValues,
     ],
   }
-  await request.post('', data)
+  await request.post('Run', data)
 }

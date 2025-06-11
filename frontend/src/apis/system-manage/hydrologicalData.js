@@ -8,7 +8,7 @@ export const getMonthEvaporationAxios = async (STCDT) => {
     names: ['action', 'dispatch', 'keys', 'paramNames', 'paramValues'],
     values: ['/pms/Base', '/doreaddata/getdata', 'getMonthE', 'STCDT', STCDT],
   }
-  const response = await request.post('', data)
+  const response = await request.post('Run', data)
   const responseStr = response.data[0]
   let monthE = []
   try {
@@ -73,7 +73,7 @@ export const updateMonthEvaporationBatchAxios = async (STCDT, oldData, newData) 
     ],
   }
 
-  await request.post('', data)
+  await request.post('Run', data)
   ElMessage.success('更新成功')
 }
 
@@ -94,7 +94,7 @@ export const getDailyFlowAxios = async (stcdt, begintime, endtime) => {
     ],
   }
 
-  const response = await request.post('', data)
+  const response = await request.post('Run', data)
   const responseStr = response.data[0]
   let dayFlowData = []
 
@@ -155,7 +155,7 @@ export const updateDailyFlowBatchAxios = async (STCDT, oldData, newData) => {
     ],
   }
 
-  await request.post('', data)
+  await request.post('Run', data)
   ElMessage.success('保存成功')
 }
 
@@ -180,7 +180,7 @@ export const deleteDailyFlowAxios = async (STCDT, deleteTime) => {
     ],
   }
 
-  await request.post('', data)
+  await request.post('Run', data)
   ElMessage.success('删除成功')
 }
 
@@ -204,7 +204,7 @@ export const addDailyFlowAxios = async (STCDT, time, value) => {
     ],
   }
 
-  await request.post('', data)
+  await request.post('Run', data)
   ElMessage.success('添加成功')
 }
 
@@ -222,7 +222,7 @@ export const getSelSeqflowDataAxios = async (ptcode, interval = 'MM') => {
     ],
   }
 
-  const response = await request.post('', data)
+  const response = await request.post('Run', data)
   const responseStr = response.data[0]
   let selSeqflowData = []
   try {
@@ -259,7 +259,7 @@ export const getSelYearflowDataAxios = async (ptcode, year, interval = 'MM') => 
     ],
   }
 
-  const response = await request.post('', data)
+  const response = await request.post('Run', data)
   const responseStr = response.data[0]
   let yearFlowData = []
   try {
@@ -296,7 +296,7 @@ export const getMonthlyOriginalHydroAxios = async (ptcode) => {
     values: ['/pms/Base', '/DataGridQuery/GetOriginalHydro', ptcode],
   }
 
-  const response = await request.post('', data)
+  const response = await request.post('Run', data)
   const responseStr = response.data[0]
   let originalHydroData = []
   try {
@@ -365,7 +365,7 @@ export const updateMonthlyFlowBatchAxios = async (ptcode, tableData, year) => {
   }
 
   try {
-    await request.post('', data)
+    await request.post('Run', data)
     ElMessage.success(`${year}年的月平均流量数据更新成功`)
   } catch (error) {
     ElMessage.error('请求失败')
@@ -395,7 +395,7 @@ export const deleteMonthlyFlowAxios = async (ptcode, year) => {
   }
 
   try {
-    await request.post('', data)
+    await request.post('Run', data)
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
     return Promise.reject(error)
@@ -424,7 +424,7 @@ export const addMonthlyFlowAxios = async (STCDT, params) => {
   }
 
   try {
-    await request.post('', data)
+    await request.post('Run', data)
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
     return Promise.reject(error)
@@ -441,7 +441,7 @@ export const getAllTDFlowDataAxios = async (STCDT) => {
     values: ['/pms/Base', '/doreaddata/getdata', 'getAllTDFlowData', 'stcdt', STCDT],
   }
 
-  const response = await request.post('', data)
+  const response = await request.post('Run', data)
   const responseStr = response.data[0]
   let resultData = []
   try {
@@ -510,7 +510,7 @@ export const updateTendayFlowBatchAxios = async (STCDT, tableData, year) => {
   }
 
   try {
-    await request.post('', data)
+    await request.post('Run', data)
     ElMessage.success(`${year}年的逐旬流量数据更新成功`)
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
@@ -536,7 +536,7 @@ export const deleteTendayFlowAxios = async (STCDT, year) => {
   }
 
   try {
-    await request.post('', data)
+    await request.post('Run', data)
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
     return Promise.reject(error)
@@ -566,7 +566,7 @@ export const addTendayFlowAxios = async (STCDT, params) => {
   }
 
   try {
-    await request.post('', data)
+    await request.post('Run', data)
   } catch (error) {
     ElMessage.error('请求失败，请检查网络或服务器状态')
     return Promise.reject(error)
