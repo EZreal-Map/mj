@@ -1,5 +1,34 @@
 <template>
   <div class="container">
+    <div class="right">
+      <div class="right-table">
+        <el-table
+          ref="rightTableRef"
+          :data="rightTableData"
+          stripe
+          style="width: 100%"
+          height="100%"
+          @row-click="rowClickCallback"
+          highlight-current-row
+        >
+          <el-table-column prop="Year" label="年份"> </el-table-column>
+          <el-table-column prop="flowQMonth1" label="一月"> </el-table-column>
+          <el-table-column prop="flowQMonth2" label="二月"> </el-table-column>
+          <el-table-column prop="flowQMonth3" label="三月"> </el-table-column>
+          <el-table-column prop="flowQMonth4" label="四月"> </el-table-column>
+          <el-table-column prop="flowQMonth5" label="五月"> </el-table-column>
+          <el-table-column prop="flowQMonth6" label="六月"> </el-table-column>
+          <el-table-column prop="flowQMonth7" label="七月"> </el-table-column>
+          <el-table-column prop="flowQMonth8" label="八月"> </el-table-column>
+          <el-table-column prop="flowQMonth9" label="九月"> </el-table-column>
+          <el-table-column prop="flowQMonth10" label="十月"> </el-table-column>
+          <el-table-column prop="flowQMonth11" label="十一月"> </el-table-column>
+          <el-table-column prop="flowQMonth12" label="十二月"> </el-table-column>
+          <el-table-column prop="flowQYear" label="年平均"> </el-table-column>
+        </el-table>
+      </div>
+      <div ref="chartRef" class="chart-container"></div>
+    </div>
     <div class="left">
       <div class="left-top-space-between">
         <div class="left-top">
@@ -62,35 +91,6 @@
         <el-button type="primary" @click="deleteMonthFlow">删除</el-button>
         <el-button type="primary" @click="updateMonthlyFlowBatch">保存</el-button>
       </div>
-    </div>
-    <div class="right">
-      <div class="right-table">
-        <el-table
-          ref="rightTableRef"
-          :data="rightTableData"
-          stripe
-          style="width: 100%"
-          height="100%"
-          @row-click="rowClickCallback"
-          highlight-current-row
-        >
-          <el-table-column prop="Year" label="年份"> </el-table-column>
-          <el-table-column prop="flowQMonth1" label="一月"> </el-table-column>
-          <el-table-column prop="flowQMonth2" label="二月"> </el-table-column>
-          <el-table-column prop="flowQMonth3" label="三月"> </el-table-column>
-          <el-table-column prop="flowQMonth4" label="四月"> </el-table-column>
-          <el-table-column prop="flowQMonth5" label="五月"> </el-table-column>
-          <el-table-column prop="flowQMonth6" label="六月"> </el-table-column>
-          <el-table-column prop="flowQMonth7" label="七月"> </el-table-column>
-          <el-table-column prop="flowQMonth8" label="八月"> </el-table-column>
-          <el-table-column prop="flowQMonth9" label="九月"> </el-table-column>
-          <el-table-column prop="flowQMonth10" label="十月"> </el-table-column>
-          <el-table-column prop="flowQMonth11" label="十一月"> </el-table-column>
-          <el-table-column prop="flowQMonth12" label="十二月"> </el-table-column>
-          <el-table-column prop="flowQYear" label="年平均"> </el-table-column>
-        </el-table>
-      </div>
-      <div ref="chartRef" class="chart-container"></div>
     </div>
   </div>
 

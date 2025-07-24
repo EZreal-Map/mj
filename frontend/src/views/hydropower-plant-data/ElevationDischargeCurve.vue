@@ -1,5 +1,8 @@
 <template>
   <div class="container">
+    <div class="right">
+      <div ref="chartRef" class="chart-container"></div>
+    </div>
     <div class="left">
       <div class="left-top">
         <div class="station-select-row">
@@ -62,9 +65,6 @@
           </el-table-column>
         </el-table>
       </div>
-    </div>
-    <div class="right">
-      <div ref="chartRef" class="chart-container"></div>
     </div>
   </div>
 

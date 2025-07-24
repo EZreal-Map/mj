@@ -1,5 +1,5 @@
 <template>
-  <el-menu>
+  <el-menu class="menu">
     <el-menu-item index="1" @click="queryEntityByName">
       <span>查找</span>
     </el-menu-item>
@@ -306,3 +306,9 @@ const selectTwoJunctions = () => {
 // 4. 计算事件
 const showCalculateDialog = ref(false)
 </script>
+
+<style scoped>
+.menu {
+  height: 100%;
+}
+</style>

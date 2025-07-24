@@ -19,4 +19,23 @@ body,
 .cesium-widget-credits {
   display: none !important;
 }
+
+/* 美化滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #dadbdd;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c7c9cc;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f7fa;
+}
 </style>

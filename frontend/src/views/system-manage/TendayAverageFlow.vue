@@ -1,5 +1,27 @@
 <template>
   <div class="container">
+    <div class="right">
+      <div class="right-table">
+        <el-table
+          ref="rightTableRef"
+          :data="rightTableData"
+          stripe
+          style="width: 100%"
+          height="100%"
+          @row-click="rowClickCallback"
+          highlight-current-row
+        >
+          <el-table-column prop="Year" label="年份"> </el-table-column>
+          <el-table-column
+            v-for="tendayIndex in 12 * 3"
+            :key="tendayIndex"
+            :prop="`TD${tendayIndex}`"
+            :label="`${tendayIndex}旬`"
+          />
+        </el-table>
+      </div>
+      <div ref="chartRef" class="chart-container"></div>
+    </div>
     <div class="left">
       <div class="left-top-space-between">
         <div class="left-top">
@@ -62,28 +84,6 @@
         <el-button type="primary" @click="deleteTendayFlow">删除</el-button>
         <el-button type="primary" @click="updateMonthlyFlowBatch">保存</el-button>
       </div>
-    </div>
-    <div class="right">
-      <div class="right-table">
-        <el-table
-          ref="rightTableRef"
-          :data="rightTableData"
-          stripe
-          style="width: 100%"
-          height="100%"
-          @row-click="rowClickCallback"
-          highlight-current-row
-        >
-          <el-table-column prop="Year" label="年份"> </el-table-column>
-          <el-table-column
-            v-for="tendayIndex in 12 * 3"
-            :key="tendayIndex"
-            :prop="`TD${tendayIndex}`"
-            :label="`${tendayIndex}旬`"
-          />
-        </el-table>
-      </div>
-      <div ref="chartRef" class="chart-container"></div>
     </div>
   </div>
 

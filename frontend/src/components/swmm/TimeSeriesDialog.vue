@@ -464,24 +464,6 @@ onMounted(async () => {
   display: table-cell !important;
 }
 
-/* 美化滚动条 */
-::-webkit-scrollbar {
-  width: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c0c4cc;
-  border-radius: 2px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a6a9ad;
-}
-
-::-webkit-scrollbar-track {
-  background: #f5f7fa;
-}
-
 ::v-deep(input::-webkit-inner-spin-button) {
   -webkit-appearance: none;
 }
